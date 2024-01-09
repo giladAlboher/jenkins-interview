@@ -8,8 +8,8 @@ pipeline {
                     // Read the content of the jenkins-secret.yaml file
                     def secretYaml = readFile 'jenkins-secret.yaml'
 
-                    // Parse the YAML content
-                    def yamlData = readYaml text: secretYaml
+                    // Parse the YAML content using the yaml library
+                    def yamlData = new groovy.yaml.Yaml().load(secretYaml)
 
                     // Retrieve username and password from the parsed YAML
                     def username = new String(Base64.getDecoder().decode(yamlData.data.username), 'UTF-8')
