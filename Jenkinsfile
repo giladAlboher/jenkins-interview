@@ -2,16 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Retrieve Credentials') {
+        stage('Retrieve Credentials from YAML') {
             steps {
                 script {
-                    // Retrieve the secret credential by ID
-                    withCredentials([usernamePassword(credentialsId: '145b8b5f-6eb9-40ca-9d96-e878c2781854', passwordVariable: 'SECRET_PASSWORD', usernameVariable: 'SECRET_USERNAME')]) {
-                        
-                        // Echo the username and password
-                        echo "Username: ${SECRET_USERNAME}"
-                        echo "Password: ${SECRET_PASSWORD}"
-                    }
+                    // Read the content of the jenkins-secret.yaml file
+                    def secretYaml = readFile 'jenkins-secret.yaml'
+
+                    // Parse the YAML content
+                    def yamlData = readYaml text: secretYaml
+
+                    // Retrieve username and password from the parsed YAML
+                    def username = new String(Base64.getDecoder().decode(yamlData.data.username), 'UTF-8')
+                    def password = new String(Base64.getDecoder().decode(yamlData.data.password), 'UTF-8')
+
+                    // Echo the username and password
+                    echo "Username: ${username}"
+                    echo "Password: ${password}"
                 }
             }
         }
